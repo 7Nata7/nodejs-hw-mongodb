@@ -1,6 +1,7 @@
-const express = require('express');
+import express from 'express';
+import { getAllContacts, getContactById } from '../services/contacts.js';
+
 const router = express.Router();
-const { getAllContacts, getContactById } = require('../services/contacts');
 
 router.get('/contacts', async (req, res) => {
   try {
@@ -8,37 +9,37 @@ router.get('/contacts', async (req, res) => {
     res.status(200).json({
       status: 200,
       message: 'Successfully found contacts!',
-      data: contacts
+      data: contacts,
     });
   } catch (error) {
     res.status(500).json({
       message: 'Error fetching contacts',
-      error: error.message
+      error: error.message,
     });
   }
 });
 
 router.get('/contacts/:contactId', async (req, res) => {
   const { contactId } = req.params;
-  
+
   try {
     const contact = await getContactById(contactId);
     if (!contact) {
       return res.status(404).json({
-        message: 'Contact not found'
+        message: 'Contact not found',
       });
     }
     res.status(200).json({
       status: 200,
       message: `Successfully found contact with id ${contactId}!`,
-      data: contact
+      data: contact,
     });
   } catch (error) {
     res.status(500).json({
       message: 'Error fetching contact',
-      error: error.message
+      error: error.message,
     });
   }
 });
 
-module.exports = router;
+export default router;

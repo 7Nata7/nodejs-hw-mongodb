@@ -1,14 +1,9 @@
-const Contact = require('../models/Contact');
+import Contact from '../models/Contact.js'; // Додайте розширення .js
 
-const getAllContacts = async () => {
+export const getAllContacts = async () => {
   return await Contact.find({});
 };
 
-const getContactById = async (id) => {
+export const getContactById = async (id) => {
   return await Contact.findById(id);
-};
-
-module.exports = {
-  getAllContacts,
-  getContactById
 };
