@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: nodejs-hw-mongodb
+    env: node
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: MONGODB_USER
+        value: Nata
+      - key: MONGODB_PASSWORD
+        value: yourPassword
+      - key: MONGODB_URL
+        value: yourClusterUrl
+      - key: MONGODB_DB
+        value: yourDatabaseName
+      - key: PORT
+        value: 3000
