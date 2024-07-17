@@ -39,6 +39,32 @@
 //   console.log(`Server is running on http://localhost:${PORT}`);
 // });
 
+// import express from 'express';
+// import dotenv from 'dotenv';
+// import initMongoConnection from './db/initMongoConnection.js'; 
+// import contactsRouter from './routes/contacts.js'; 
+
+// dotenv.config({ path: '.env.example' });
+
+// const app = express();
+// const port = process.env.PORT || 3000;
+
+// app.use(express.json());
+
+// app.get('/', (req, res) => {
+//   res.send('Hello World!');
+// });
+
+// app.use('/api', contactsRouter);
+
+// initMongoConnection().then(() => {
+//   app.listen(port, () => {
+//     console.log(`Server is running on http://localhost:${port}`);
+//   });
+// }).catch((error) => {
+//   console.error('Failed to initialize MongoDB connection:', error.message);
+// });
+
 import express from 'express';
 import dotenv from 'dotenv';
 import initMongoConnection from './db/initMongoConnection.js'; 
