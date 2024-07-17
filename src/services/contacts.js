@@ -1,4 +1,4 @@
-import Contact from '../models/Contact.js'; // Додайте розширення .js
+import Contact from '../models/Contacts.js';
 
 export const getAllContacts = async () => {
   return await Contact.find({});
