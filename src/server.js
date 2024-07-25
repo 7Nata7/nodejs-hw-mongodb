@@ -10,7 +10,7 @@ const app = express();
 
 app.use(express.json());
 
-app.use(contactsRouter);
+app.use('/contacts', contactsRouter);
 
 app.use(notFoundHandler);
 
@@ -26,3 +26,4 @@ const setupServer = async () => {
 };
 
 export default setupServer;
+
