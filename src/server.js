@@ -10,7 +10,7 @@ const app = express();
 
 app.use(express.json());
 
-app.use('/api/contacts', contactsRouter);
+app.use(contactsRouter);
 
 app.use(notFoundHandler);
 
