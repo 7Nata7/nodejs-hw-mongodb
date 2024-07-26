@@ -4,6 +4,7 @@ import contactsRouter from './routes/contacts.js';
 import errorHandler from './middlewares/errorHandler.js';
 import notFoundHandler from './middlewares/notFoundHandler.js';
 import dotenv from 'dotenv';
+
 dotenv.config();
 
 const app = express();
@@ -26,4 +27,3 @@ const setupServer = async () => {
 };
 
 export default setupServer;
-
