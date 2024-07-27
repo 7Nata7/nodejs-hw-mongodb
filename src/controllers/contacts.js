@@ -45,15 +45,20 @@ const getContactById = async (req, res, next) => {
 const createContact = async (req, res, next) => {
   console.log("Create Contact triggered with data:", req.body);
   try {
-    const newContact = await create(req.body);
-    res.status(201).json({
-      status: 201,
-      message: 'Successfully created a contact!',
-      data: newContact,
-    });
+      const { name, phoneNumber, contactType } = req.body;
+      if (!name || !phoneNumber || !contactType) {
+          throw createError(400, 'All fields are required: name, phoneNumber, contactType');
+      }
+
+      const newContact = await create(req.body);
+      res.status(201).json({
+          status: 201,
+          message: 'Successfully created a contact!',
+          data: newContact,
+      });
   } catch (error) {
-    console.error('Error in createContact:', error);
-    throw error;
+      console.error('Error in createContact:', error);
+      next(error);
   }
 };
 
@@ -84,11 +89,7 @@ const deleteContact = async (req, res, next) => {
     if (!deletedContact) {
       throw createError(404, 'Contact not found');
     }
-    res.status(200).json({
-      status: 200,
-      message: 'Successfully deleted the contact!',
-      data: deletedContact,
-    });
+    res.status(204).json();
   } catch (error) {
     console.error(`Error in deleteContact (${contactId}):`, error);
     throw error;
