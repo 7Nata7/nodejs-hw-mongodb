@@ -1,4 +1,4 @@
-import Contact from '../db/Contacts.js'; // Додаємо цей імпорт
+import Contact from '../db/Contacts.js';
 import {
     getAllContacts as getAll,
     getContactById as getById,
