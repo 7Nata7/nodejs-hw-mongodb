@@ -4,13 +4,14 @@ import contactsRouter from './routes/contacts.js';
 import errorHandler from './middlewares/errorHandler.js';
 import notFoundHandler from './middlewares/notFoundHandler.js';
 import dotenv from 'dotenv';
+
 dotenv.config();
 
 const app = express();
 
 app.use(express.json());
 
-app.use(contactsRouter);
+app.use('/contacts', contactsRouter);
 
 app.use(notFoundHandler);
 

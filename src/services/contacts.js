@@ -1,3 +1,4 @@
+
 import Contact from '../db/Contacts.js';
 
 export const getAllContacts = async () => {
