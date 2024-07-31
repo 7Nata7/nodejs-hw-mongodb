@@ -8,7 +8,7 @@ export const contactValidationSchemaPOST = checkSchema({
             errorMessage: 'Name should be at least 3 characters',
         },
         errorMessage: 'Name is required',
-        trim: true, // видаляє з імені пробіли на початку та кінці
+        trim: true,
     },
     phoneNumber: {
         in: ['body'],
