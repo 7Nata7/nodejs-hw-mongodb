@@ -1,4 +1,4 @@
-import Contact from '../db/Contacts.js';
+import createError from 'http-errors';
 import {
     getAllContacts as getAll,
     getContactById as getById,
@@ -6,7 +6,7 @@ import {
     updateContact as update,
     deleteContact as remove
 } from '../services/contacts.js';
-import createError from 'http-errors';
+import Contact from '../db/Contacts.js';
 import ctrlWrapper from '../utils/ctrlWrapper.js';
 
 const getAllContacts = async (req, res, next) => {
@@ -20,8 +20,8 @@ const getAllContacts = async (req, res, next) => {
         if (req.query.type) {
             filter.contactType = req.query.type;
         }
-        if (req.query.isFavourite) {
-            filter.isFavourite = req.query.isFavourite === 'true';
+        if (req.query.isFavorite) {
+            filter.isFavorite = req.query.isFavorite === 'true';
         }
 
         const [contacts, totalItems] = await Promise.all([
@@ -37,10 +37,10 @@ const getAllContacts = async (req, res, next) => {
         const totalPages = Math.ceil(totalItems / perPage);
 
         res.status(200).json({
-            status: 200,
-            message: 'Successfully found contacts!',
+            status: 'success',
+            code: 200,
             data: {
-                data: contacts,
+                contacts,
                 page,
                 perPage,
                 totalItems,
@@ -50,7 +50,6 @@ const getAllContacts = async (req, res, next) => {
             }
         });
     } catch (error) {
-        console.error('Error in getAllContacts:', error);
         next(error);
     }
 };
@@ -63,31 +62,24 @@ const getContactById = async (req, res, next) => {
             throw createError(404, 'Contact not found');
         }
         res.status(200).json({
-            status: 200,
-            message: `Successfully found contact with id ${contactId}!`,
+            status: 'success',
+            code: 200,
             data: contact,
         });
     } catch (error) {
-        console.error(`Error in getContactById (${contactId}):`, error);
         next(error);
     }
 };
 
 const createContact = async (req, res, next) => {
     try {
-        const { name, phoneNumber, contactType } = req.body;
-        if (!name || !phoneNumber || !contactType) {
-            throw createError(400, 'All fields are required: name, phoneNumber, contactType');
-        }
-
         const newContact = await create(req.body);
         res.status(201).json({
-            status: 201,
-            message: 'Successfully created a contact!',
+            status: 'success',
+            code: 201,
             data: newContact,
         });
     } catch (error) {
-        console.error('Error in createContact:', error);
         next(error);
     }
 };
@@ -100,12 +92,11 @@ const updateContact = async (req, res, next) => {
             throw createError(404, 'Contact not found');
         }
         res.status(200).json({
-            status: 200,
-            message: 'Successfully patched a contact!',
+            status: 'success',
+            code: 200,
             data: updatedContact,
         });
     } catch (error) {
-        console.error(`Error in updateContact (${contactId}):`, error);
         next(error);
     }
 };
@@ -119,7 +110,6 @@ const deleteContact = async (req, res, next) => {
         }
         res.status(204).json();
     } catch (error) {
-        console.error(`Error in deleteContact (${contactId}):`, error);
         next(error);
     }
 };
