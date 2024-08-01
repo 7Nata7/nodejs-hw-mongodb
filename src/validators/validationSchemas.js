@@ -1,41 +1,42 @@
-import { checkSchema } from 'express-validator';
+import { body } from 'express-validator';
 
-export const contactValidationSchemaPOST = checkSchema({
-    name: {
-        in: ['body'],
-        isLength: {
-            options: { min: 3 },
-            errorMessage: 'Name should be at least 3 characters',
-        },
-        errorMessage: 'Name is required',
-        trim: true,
-    },
-    phoneNumber: {
-        in: ['body'],
-        matches: {
-            options: [/^\+\d{10,14}$/],
-            errorMessage: 'Phone number should be valid',
-        },
-        errorMessage: 'Phone number is required',
-    },
-    contactType: {
-        in: ['body'],
-        isString: true,
-        errorMessage: 'Contact type is required',
-    },
-    email: {
-        in: ['body'],
-        isEmail: {
-            bail: true,
-            errorMessage: 'Email should be a valid email address',
-        },
-        optional: { nullable: true, checkFalsy: true },
-    },
-    isFavorite: {
-        in: ['body'],
-        isBoolean: {
-            errorMessage: 'isFavorite must be a boolean',
-        },
-        optional: { nullable: true, checkFalsy: true },
-    },
-});
+export const contactValidationSchemaPOST = [
+    body('name')
+        .isString().withMessage('Name must be a string')
+        .isLength({ min: 3, max: 20 }).withMessage('Name must be between 3 and 20 characters long')
+        .notEmpty().withMessage('Name is required'),
+    body('phoneNumber')
+        .isString().withMessage('Phone number must be a string')
+        .isLength({ min: 3, max: 20 }).withMessage('Phone number must be between 3 and 20 characters long')
+        .notEmpty().withMessage('Phone number is required'),
+    body('email')
+        .optional()
+        .isEmail().withMessage('Email must be a valid email address'),
+    body('isFavorite')
+        .optional()
+        .isBoolean().withMessage('isFavorite must be a boolean'),
+    body('contactType')
+        .isString().withMessage('contactType must be a string')
+        .isIn(['work', 'home', 'personal']).withMessage('contactType must be one of: work, home, personal')
+];
+
+export const contactValidationSchemaPATCH = [
+    body('name')
+        .optional()
+        .isString().withMessage('Name must be a string')
+        .isLength({ min: 3, max: 20 }).withMessage('Name must be between 3 and 20 characters long'),
+    body('phoneNumber')
+        .optional()
+        .isString().withMessage('Phone number must be a string')
+        .isLength({ min: 3, max: 20 }).withMessage('Phone number must be between 3 and 20 characters long'),
+    body('email')
+        .optional()
+        .isEmail().withMessage('Email must be a valid email address'),
+    body('isFavorite')
+        .optional()
+        .isBoolean().withMessage('isFavorite must be a boolean'),
+    body('contactType')
+        .optional()
+        .isString().withMessage('contactType must be a string')
+        .isIn(['work', 'home', 'personal']).withMessage('contactType must be one of: work, home, personal')
+];

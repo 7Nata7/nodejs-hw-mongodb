@@ -1,19 +1,15 @@
 import { validationResult } from 'express-validator';
 
-const validateBody = (schemas) => {
+const validateBody = (schema) => {
     return async (req, res, next) => {
-        await Promise.all(schemas.map((schema) => schema.run(req)));
+        await Promise.all(schema.map(validation => validation.run(req)));
 
         const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(400).json({ 
-                status: 'error', 
-                code: 400, 
-                errors: errors.array() 
-            });
+        if (errors.isEmpty()) {
+            return next();
         }
 
-        next();
+        res.status(400).json({ status: 'error', code: 400, errors: errors.array() });
     };
 };
 
