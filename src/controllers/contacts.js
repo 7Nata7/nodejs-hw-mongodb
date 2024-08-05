@@ -1,133 +1,85 @@
-import Contact from '../db/Contacts.js'; // Додаємо цей імпорт
-import {
-    getAllContacts as getAll,
-    getContactById as getById,
-    createContact as create,
-    updateContact as update,
-    deleteContact as remove
-} from '../services/contacts.js';
-import createError from 'http-errors';
-import ctrlWrapper from '../utils/ctrlWrapper.js';
+import Contact from '../db/Contacts.js';
 
-const getAllContacts = async (req, res, next) => {
+const getAllContacts = async (req, res) => {
     try {
-        const page = parseInt(req.query.page) || 1;
-        const perPage = parseInt(req.query.perPage) || 10;
-        const sortBy = req.query.sortBy || 'name';
-        const sortOrder = req.query.sortOrder === 'desc' ? -1 : 1;
-
-        const filter = {};
-        if (req.query.type) {
-            filter.contactType = req.query.type;
-        }
-        if (req.query.isFavourite) {
-            filter.isFavourite = req.query.isFavourite === 'true';
-        }
-
-        const [contacts, totalItems] = await Promise.all([
-            getAll({ 
-                filter,
-                skip: (page - 1) * perPage, 
-                limit: perPage, 
-                sort: { [sortBy]: sortOrder } 
-            }),
-            Contact.countDocuments(filter)
-        ]);
-
-        const totalPages = Math.ceil(totalItems / perPage);
-
-        res.status(200).json({
-            status: 200,
-            message: 'Successfully found contacts!',
-            data: {
-                data: contacts,
-                page,
-                perPage,
-                totalItems,
-                totalPages,
-                hasPreviousPage: page > 1,
-                hasNextPage: page < totalPages
-            }
-        });
+        const contacts = await Contact.find();
+        res.status(200).json({ status: 'success', code: 200, data: { contacts } });
     } catch (error) {
-        console.error('Error in getAllContacts:', error);
-        next(error);
+        res.status(500).json({ status: 'error', code: 500, message: error.message });
     }
 };
 
-const getContactById = async (req, res, next) => {
+const getContactById = async (req, res) => {
     const { contactId } = req.params;
     try {
-        const contact = await getById(contactId);
+        const contact = await Contact.findById(contactId);
         if (!contact) {
-            throw createError(404, 'Contact not found');
+            return res.status(404).json({ status: 'error', code: 404, message: 'Contact not found' });
         }
-        res.status(200).json({
-            status: 200,
-            message: `Successfully found contact with id ${contactId}!`,
-            data: contact,
-        });
+        res.status(200).json({ status: 'success', code: 200, data: { contact } });
     } catch (error) {
-        console.error(`Error in getContactById (${contactId}):`, error);
-        next(error);
+        res.status(500).json({ status: 'error', code: 500, message: error.message });
     }
 };
 
-const createContact = async (req, res, next) => {
+const createContact = async (req, res) => {
+    const { name, phoneNumber, email, isFavorite, contactType } = req.body;
     try {
-        const { name, phoneNumber, contactType } = req.body;
-        if (!name || !phoneNumber || !contactType) {
-            throw createError(400, 'All fields are required: name, phoneNumber, contactType');
-        }
-
-        const newContact = await create(req.body);
-        res.status(201).json({
-            status: 201,
-            message: 'Successfully created a contact!',
-            data: newContact,
+        const newContact = new Contact({
+            name,
+            phoneNumber,
+            email,
+            isFavorite: isFavorite ?? false,
+            contactType: contactType ?? 'personal'
         });
+        await newContact.save();
+        res.status(201).json({ status: 'success', code: 201, data: { newContact } });
     } catch (error) {
-        console.error('Error in createContact:', error);
-        next(error);
+        res.status(500).json({ status: 'error', code: 500, message: error.message });
     }
 };
 
-const updateContact = async (req, res, next) => {
+const updateContact = async (req, res) => {
     const { contactId } = req.params;
+    const { name, phoneNumber, email, isFavorite, contactType } = req.body;
+
     try {
-        const updatedContact = await update(contactId, req.body);
+        const updatedContact = await Contact.findByIdAndUpdate(
+            contactId,
+            { name, phoneNumber, email, isFavorite, contactType },
+            { new: true, runValidators: true }
+        );
+
         if (!updatedContact) {
-            throw createError(404, 'Contact not found');
+            return res.status(404).json({ status: 'error', code: 404, message: 'Contact not found' });
         }
-        res.status(200).json({
-            status: 200,
-            message: 'Successfully patched a contact!',
-            data: updatedContact,
-        });
+
+        res.status(200).json({ status: 'success', code: 200, data: { updatedContact } });
     } catch (error) {
-        console.error(`Error in updateContact (${contactId}):`, error);
-        next(error);
+        res.status(500).json({ status: 'error', code: 500, message: error.message });
     }
 };
 
-const deleteContact = async (req, res, next) => {
+const deleteContact = async (req, res) => {
     const { contactId } = req.params;
+
     try {
-        const deletedContact = await remove(contactId);
+        const deletedContact = await Contact.findByIdAndDelete(contactId);
+
         if (!deletedContact) {
-            throw createError(404, 'Contact not found');
+            return res.status(404).json({ status: 'error', code: 404, message: 'Contact not found' });
         }
-        res.status(204).json();
+
+        res.status(200).json({ status: 'success', code: 200, message: 'Contact deleted' });
     } catch (error) {
-        console.error(`Error in deleteContact (${contactId}):`, error);
-        next(error);
+        res.status(500).json({ status: 'error', code: 500, message: error.message });
     }
 };
 
 export default {
-    getAllContacts: ctrlWrapper(getAllContacts),
-    getContactById: ctrlWrapper(getContactById),
-    createContact: ctrlWrapper(createContact),
-    updateContact: ctrlWrapper(updateContact),
-    deleteContact: ctrlWrapper(deleteContact)
+    getAllContacts,
+    getContactById,
+    createContact,
+    updateContact,
+    deleteContact,
 };

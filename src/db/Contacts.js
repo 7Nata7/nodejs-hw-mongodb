@@ -7,7 +7,13 @@ const contactSchema = new mongoose.Schema({
     },
     email: {
         type: String,
-        required: [true, 'Set email for contact'],
+        validate: {
+            validator: function(v) {
+                return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+            },
+            message: props => `${props.value} is not a valid email!`
+        },
+        required: false,
     },
     phoneNumber: {
         type: String,
@@ -15,12 +21,16 @@ const contactSchema = new mongoose.Schema({
     },
     contactType: {
         type: String,
+        enum: ['work', 'home', 'personal'],
         required: true,
+        default: 'personal'
     },
     isFavorite: {
         type: Boolean,
         default: false,
     }
+}, {
+    timestamps: true
 });
 
 const Contact = mongoose.model('Contact', contactSchema);
