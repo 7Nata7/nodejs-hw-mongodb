@@ -1,108 +1,90 @@
 import Contact from '../db/Contacts.js';
+import createHttpError from 'http-errors';
+import ctrlWrapper from '../utils/ctrlWrapper.js';
 
 const getAllContacts = async (req, res) => {
-    const { page = 1, perPage = 10, sortBy = 'name', sortOrder = 'asc' } = req.query;
-
-    const skip = (page - 1) * perPage;
-
-    try {
-        const totalItems = await Contact.countDocuments();
-        const totalPages = Math.ceil(totalItems / perPage);
-
-        const contacts = await Contact.find()
-            .skip(skip)
-            .limit(parseInt(perPage))
-            .sort({ [sortBy]: sortOrder });
-
-        res.status(200).json({
-            status: 200,
-            message: "Successfully found contacts!",
-            data: {
-                data: contacts,
-                page: parseInt(page),
-                perPage: parseInt(perPage),
-                totalItems,
-                totalPages,
-                hasPreviousPage: page > 1,
-                hasNextPage: page < totalPages
-            }
-        });
-    } catch (error) {
-        res.status(500).json({ status: 'error', code: 500, message: error.message });
-    }
+  const userId = req.user._id; // Отримуємо `userId` з авторизованого користувача
+  const contacts = await Contact.find({ userId }); // Знайдемо всі контакти цього користувача
+  res.status(200).json(contacts);
 };
 
 const getContactById = async (req, res) => {
-    const { contactId } = req.params;
-    try {
-        const contact = await Contact.findById(contactId);
-        if (!contact) {
-            return res.status(404).json({ status: 'error', code: 404, message: 'Contact not found' });
-        }
-        res.status(200).json({ status: 'success', code: 200, data: { contact } });
-    } catch (error) {
-        res.status(500).json({ status: 'error', code: 500, message: error.message });
-    }
+  const { id } = req.params;
+  const userId = req.user._id;
+
+  const contact = await Contact.findOne({ _id: id, userId }); // Отримуємо контакти конкретного користувача
+  if (!contact) {
+    throw createHttpError(404, 'Contact not found');
+  }
+
+  res.status(200).json(contact);
 };
 
 const createContact = async (req, res) => {
-    const { name, phoneNumber, email, isFavorite, contactType } = req.body;
-    try {
-        const newContact = new Contact({
-            name,
-            phoneNumber,
-            email,
-            isFavorite: isFavorite ?? false,
-            contactType: contactType ?? 'personal'
-        });
-        await newContact.save();
-        res.status(201).json({ status: 'success', code: 201, data: { newContact } });
-    } catch (error) {
-        res.status(500).json({ status: 'error', code: 500, message: error.message });
-    }
+  const { name, email, phoneNumber, contactType, isFavorite } = req.body;
+  const userId = req.user._id; // Додаємо `userId` до нового контакту
+
+  const newContact = new Contact({
+    name,
+    email,
+    phoneNumber,
+    contactType,
+    isFavorite,
+    userId, // Додаємо `userId` до нового контакту
+  });
+
+  await newContact.save();
+
+  res.status(201).json({
+    status: 'success',
+    message: 'Successfully created a contact!',
+    data: newContact,
+  });
 };
 
 const updateContact = async (req, res) => {
-    const { contactId } = req.params;
-    const { name, phoneNumber, email, isFavorite, contactType } = req.body;
+  const { id } = req.params;
+  const userId = req.user._id;
+  const { name, email, phoneNumber, contactType, isFavorite } = req.body;
 
-    try {
-        const updatedContact = await Contact.findByIdAndUpdate(
-            contactId,
-            { name, phoneNumber, email, isFavorite, contactType },
-            { new: true, runValidators: true }
-        );
+  const updatedContact = await Contact.findOneAndUpdate(
+    { _id: id, userId }, // Переконуємося, що оновлюємо лише контакти автора
+    { name, email, phoneNumber, contactType, isFavorite },
+    { new: true }
+  );
 
-        if (!updatedContact) {
-            return res.status(404).json({ status: 'error', code: 404, message: 'Contact not found' });
-        }
+  if (!updatedContact) {
+    throw createHttpError(404, 'Contact not found');
+  }
 
-        res.status(200).json({ status: 'success', code: 200, data: { updatedContact } });
-    } catch (error) {
-        res.status(500).json({ status: 'error', code: 500, message: error.message });
-    }
+  res.status(200).json({
+    status: 'success',
+    message: 'Successfully updated the contact!',
+    data: updatedContact,
+  });
 };
 
 const deleteContact = async (req, res) => {
-    const { contactId } = req.params;
+  const { id } = req.params;
+  const userId = req.user._id;
 
-    try {
-        const deletedContact = await Contact.findByIdAndDelete(contactId);
+  const deletedContact = await Contact.findOneAndDelete({ _id: id, userId }); // Переконуємося, що видаляємо лише контакти автора
 
-        if (!deletedContact) {
-            return res.status(404).json({ status: 'error', code: 404, message: 'Contact not found' });
-        }
+  if (!deletedContact) {
+    throw createHttpError(404, 'Contact not found');
+  }
 
-        res.status(200).json({ status: 'success', code: 200, message: 'Contact deleted' });
-    } catch (error) {
-        res.status(500).json({ status: 'error', code: 500, message: error.message });
-    }
+  res.status(200).json({
+    status: 'success',
+    message: 'Successfully deleted the contact!',
+    data: deletedContact,
+  });
 };
 
 export default {
-    getAllContacts,
-    getContactById,
-    createContact,
-    updateContact,
-    deleteContact,
+  getAllContacts: ctrlWrapper(getAllContacts),
+  getContactById: ctrlWrapper(getContactById),
+  createContact: ctrlWrapper(createContact),
+  updateContact: ctrlWrapper(updateContact),
+  deleteContact: ctrlWrapper(deleteContact),
 };

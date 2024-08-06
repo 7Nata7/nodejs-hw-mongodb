@@ -1,85 +1,68 @@
-// import { body } from 'express-validator';
+import Joi from 'joi';
 
-// export const contactValidationSchemaPOST = [
-//     body('name')
-//         .isString().withMessage('Name must be a string')
-//         .isLength({ min: 3, max: 20 }).withMessage('Name must be between 3 and 20 characters long')
-//         .notEmpty().withMessage('Name is required'),
-//     body('phoneNumber')
-//         .isString().withMessage('Phone number must be a string')
-//         .isLength({ min: 3, max: 20 }).withMessage('Phone number must be between 3 and 20 characters long')
-//         .notEmpty().withMessage('Phone number is required'),
-//     body('email')
-//         .optional()
-//         .isEmail().withMessage('Email must be a valid email address'),
-//     body('isFavorite')
-//         .optional()
-//         .isBoolean().withMessage('isFavorite must be a boolean'),
-//     body('contactType')
-//         .isString().withMessage('contactType must be a string')
-//         .isIn(['work', 'home', 'personal']).withMessage('contactType must be one of: work, home, personal')
-// ];
+// Валідатор для створення контакту (POST)
+export const contactValidationSchemaPOST = Joi.object({
+  name: Joi.string().required().messages({
+    'string.empty': 'Name is required',
+    'any.required': 'Name is required',
+  }),
+  email: Joi.string().email().required().messages({
+    'string.email': 'Please provide a valid email address',
+    'string.empty': 'Email is required',
+    'any.required': 'Email is required',
+  }),
+  phoneNumber: Joi.string().required().messages({
+    'string.empty': 'Phone number is required',
+    'any.required': 'Phone number is required',
+  }),
+  contactType: Joi.string().valid('work', 'home', 'personal').required().messages({
+    'any.only': 'Contact type must be one of work, home, or personal',
+    'any.required': 'Contact type is required',
+  }),
+  isFavorite: Joi.boolean().optional().messages({
+    'boolean.base': 'isFavorite must be a boolean',
+  }),
+});
 
-// export const contactValidationSchemaPATCH = [
-//     body('name')
-//         .optional()
-//         .isString().withMessage('Name must be a string')
-//         .isLength({ min: 3, max: 20 }).withMessage('Name must be between 3 and 20 characters long'),
-//     body('phoneNumber')
-//         .optional()
-//         .isString().withMessage('Phone number must be a string')
-//         .isLength({ min: 3, max: 20 }).withMessage('Phone number must be between 3 and 20 characters long'),
-//     body('email')
-//         .optional()
-//         .isEmail().withMessage('Email must be a valid email address'),
-//     body('isFavorite')
-//         .optional()
-//         .isBoolean().withMessage('isFavorite must be a boolean'),
-//     body('contactType')
-//         .optional()
-//         .isString().withMessage('contactType must be a string')
-//         .isIn(['work', 'home', 'personal']).withMessage('contactType must be one of: work, home, personal')
-// ];
+// Валідатор для часткового оновлення контакту (PATCH)
+export const contactValidationSchemaPATCH = Joi.object({
+  name: Joi.string().optional().messages({
+    'string.empty': 'Name must not be empty',
+  }),
+  email: Joi.string().email().optional().messages({
+    'string.email': 'Please provide a valid email address',
+  }),
+  phoneNumber: Joi.string().optional().messages({
+    'string.empty': 'Phone number must not be empty',
+  }),
+  contactType: Joi.string().valid('work', 'home', 'personal').optional().messages({
+    'any.only': 'Contact type must be one of work, home, or personal',
+  }),
+  isFavorite: Joi.boolean().optional().messages({
+    'boolean.base': 'isFavorite must be a boolean',
+  }),
+});
 
-import { body } from 'express-validator';
-
-export const contactValidationSchemaPOST = [
-    body('name')
-        .isString().withMessage('Name must be a string')
-        .isLength({ min: 3, max: 20 }).withMessage('Name must be between 3 and 20 characters long')
-        .notEmpty().withMessage('Name is required'),
-    body('phoneNumber')
-        .isString().withMessage('Phone number must be a string')
-        .isLength({ min: 3, max: 20 }).withMessage('Phone number must be between 3 and 20 characters long')
-        .notEmpty().withMessage('Phone number is required'),
-    body('email')
-        .optional()
-        .isEmail().withMessage('Email must be a valid email address'),
-    body('isFavorite')
-        .optional()
-        .isBoolean().withMessage('isFavorite must be a boolean'),
-    body('contactType')
-        .isString().withMessage('Contact type must be a string')
-        .isIn(['work', 'home', 'personal']).withMessage('Contact type must be one of: work, home, personal')
-];
-
-export const contactValidationSchemaPATCH = [
-    body('name')
-        .optional()
-        .isString().withMessage('Name must be a string')
-        .isLength({ min: 3, max: 20 }).withMessage('Name must be between 3 and 20 characters long'),
-    body('phoneNumber')
-        .optional()
-        .isString().withMessage('Phone number must be a string')
-        .isLength({ min: 3, max: 20 }).withMessage('Phone number must be between 3 and 20 characters long'),
-    body('email')
-        .optional()
-        .isEmail().withMessage('Email must be a valid email address'),
-    body('isFavorite')
-        .optional()
-        .isBoolean().withMessage('isFavorite must be a boolean'),
-    body('contactType')
-        .optional()
-        .isString().withMessage('Contact type must be a string')
-        .isIn(['work', 'home', 'personal']).withMessage('Contact type must be one of: work, home, personal')
-];
+// Валідатор для повного оновлення контакту (PUT)
+export const contactValidationSchemaPUT = Joi.object({
+  name: Joi.string().required().messages({
+    'string.empty': 'Name is required',
+    'any.required': 'Name is required',
+  }),
+  email: Joi.string().email().required().messages({
+    'string.email': 'Please provide a valid email address',
+    'string.empty': 'Email is required',
+    'any.required': 'Email is required',
+  }),
+  phoneNumber: Joi.string().required().messages({
+    'string.empty': 'Phone number is required',
+    'any.required': 'Phone number is required',
+  }),
+  contactType: Joi.string().valid('work', 'home', 'personal').required().messages({
+    'any.only': 'Contact type must be one of work, home, or personal',
+    'any.required': 'Contact type is required',
+  }),
+  isFavorite: Joi.boolean().optional().messages({
+    'boolean.base': 'isFavorite must be a boolean',
+  }),
+});

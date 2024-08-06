@@ -28,7 +28,12 @@ const contactSchema = new mongoose.Schema({
     isFavorite: {
         type: Boolean,
         default: false,
-    }
+    },
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true,
+    },
 }, {
     timestamps: true
 });
