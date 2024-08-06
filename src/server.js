@@ -27,6 +27,4 @@ const setupServer = async () => {
   });
 };
 
-setupServer();
-
 export default setupServer;
